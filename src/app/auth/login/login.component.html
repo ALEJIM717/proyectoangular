@@ -1,0 +1,48 @@
+<div class="background">
+  <div class="glass-card">
+    <img src="assets\logo.jpg" alt="Logo Pokémon" class="logo-pokemon" />
+    <h1 class="title">Bienvenido</h1>
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-icon matSuffix>mail</mat-icon>
+        <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+          El correo es obligatorio.
+        </mat-error>
+        <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+          Ingresa un correo válido.
+        </mat-error>
+        <mat-error *ngIf="emailError">{{ emailError }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          [type]="hidePassword ? 'password' : 'text'"
+          formControlName="password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="togglePasswordVisibility()"
+          type="button"
+          tabindex="-1"
+        >
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-icon matPrefix>lock</mat-icon>
+      
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          La contraseña es obligatoria.
+        </mat-error>
+        <mat-error *ngIf="passwordError">{{ passwordError }}</mat-error>
+      </mat-form-field>
+      
+      <button mat-raised-button color="primary" type="submit" class="btn-login" [disabled]="loginForm.invalid">
+        Iniciar sesión
+      </button>
+    </form>
+  </div>
+</div>

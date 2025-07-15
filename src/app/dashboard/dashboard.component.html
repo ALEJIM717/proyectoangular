@@ -1,0 +1,232 @@
+<nav class="top-navbar">
+  <div class="navbar-brand">
+    <img src="assets/logo.png" alt="Logo" class="logo-nav" />
+    <h1>PokéDashboard</h1>
+  </div>
+  
+  <div class="user-card" tabindex="0">
+    <div class="navbar-user">
+      <img *ngIf="currentUser" [src]="currentUser.avatar" alt="User Avatar" class="user-avatar">
+      <div class="user-info">
+        <span class="user-name">{{ currentUser?.name }}</span>
+        <span class="user-email">{{ currentUser?.email }}</span>
+      </div>
+      <i class="material-icons">expand_more</i>
+    </div>
+    
+    <div class="dropdown-menu">
+      <div class="dropdown-header">
+        <img *ngIf="currentUser" [src]="currentUser.avatar" alt="User Avatar" class="dropdown-avatar">
+        <div class="user-name">{{ currentUser?.name }}</div>
+        <div class="user-email">{{ currentUser?.email }}</div>
+      </div>
+      
+      <div class="dropdown-item" (click)="showProfileInfo()">
+        <i class="material-icons">account_circle</i>
+        <span>Mi perfil</span>
+      </div>
+      <div class="dropdown-item" (click)="logout()">
+        <i class="material-icons">exit_to_app</i>
+        <span>Cerrar sesión</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<div class="container">
+  <div class="logo-container">
+    <img src="assets/logo.png" alt="Logo" class="logo" />
+  </div>
+
+  <div class="actions-bar">
+    <button class="add-btn" (click)="openAddModal()">Agregar Pokémon</button>
+    <input [(ngModel)]="searchText" (input)="filter()" placeholder="Buscar Pokémon..." />
+  </div>
+
+  <!-- Modal para agregar Pokémon -->
+  <div class="modal" *ngIf="showAddModal">
+    <div class="modal-content">
+      <span class="close" (click)="closeModal()">&times;</span>
+      <h2>Agregar nuevo Pokémon</h2>
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input [(ngModel)]="newPokemon.name" placeholder="Nombre del Pokémon" />
+      </div>
+      <div class="form-group">
+        <label>Tipos (separados por comas):</label>
+        <input [(ngModel)]="newPokemon.types" placeholder="Ej: Fuego, Volador" />
+      </div>
+      <div class="form-group">
+        <label>Peso (kg):</label>
+        <input type="number" [(ngModel)]="newPokemon.weight" placeholder="Peso en kg" />
+      </div>
+      <div class="form-group">
+        <label>URL de la imagen:</label>
+        <input [(ngModel)]="newPokemon.image" placeholder="URL de la imagen" />
+      </div>
+      <button class="save-btn" (click)="addPokemon()">Guardar</button>
+    </div>
+  </div>
+
+  <!-- Modal para editar Pokémon -->
+  <div class="modal" *ngIf="showEditModal">
+    <div class="modal-content">
+      <span class="close" (click)="closeModal()">&times;</span>
+      <h2>Editar Pokémon</h2>
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input [(ngModel)]="editingPokemon.name" placeholder="Nombre del Pokémon" />
+      </div>
+      <div class="form-group">
+        <label>Tipos (separados por comas):</label>
+        <input [(ngModel)]="editingPokemon.types" placeholder="Ej: Fuego, Volador" />
+      </div>
+      <div class="form-group">
+        <label>Peso (kg):</label>
+        <input type="number" [(ngModel)]="editingPokemon.weight" placeholder="Peso en kg" />
+      </div>
+      <div class="form-group">
+        <label>URL de la imagen:</label>
+        <input [(ngModel)]="editingPokemon.image" placeholder="URL de la imagen" />
+      </div>
+      <button class="save-btn" (click)="saveEdit()">Guardar cambios</button>
+    </div>
+  </div>
+
+  <!-- Modal para ver detalles del Pokémon -->
+  <div class="modal" *ngIf="showDetailModal">
+    <div class="modal-content detail-modal">
+      <span class="close" (click)="closeModal()">&times;</span>
+      
+      <div *ngIf="isLoadingDetails" class="loading-spinner">
+        Cargando detalles...
+      </div>
+      
+      <div *ngIf="selectedPokemon && !isLoadingDetails">
+        <h2>{{ selectedPokemon.name | uppercase }} #{{ selectedPokemon.id }}</h2>
+        
+        <div class="pokemon-detail">
+          <div class="detail-left">
+            <img [src]="selectedPokemon.image" 
+                 alt="Imagen de {{ selectedPokemon.name }}"
+                 class="detail-image">
+          </div>
+          
+          <div class="detail-right">
+            <div class="detail-section">
+              <h3>ID y Nombre</h3>
+              <p><strong>ID:</strong> {{ selectedPokemon.id }}</p>
+              <p><strong>Nombre:</strong> {{ selectedPokemon.name }}</p>
+            </div>
+            
+            <div class="detail-section">
+              <h3>Tipos</h3>
+              <div class="types-container">
+                <span *ngFor="let type of selectedPokemon.types" 
+                      class="type-badge type-{{type.toLowerCase()}}">
+                  {{ type }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="detail-section">
+              <h3>Estadísticas</h3>
+              <div class="stats-container">
+                <div class="stat-row" *ngFor="let stat of selectedPokemon.stats">
+                  <span class="stat-name">{{ stat.name }}:</span>
+                  <div class="stat-bar-container">
+                    <div class="stat-bar" [style.width.%]="(stat.value / 255) * 100"></div>
+                    <span class="stat-value">{{ stat.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="detail-section">
+              <h3>Altura/Peso</h3>
+              <p><strong>Altura:</strong> {{ selectedPokemon.height }} m</p>
+              <p><strong>Peso:</strong> {{ selectedPokemon.weight }} kg</p>
+            </div>
+            
+            <div class="detail-section">
+              <h3>Habilidades</h3>
+              <ul class="abilities-list">
+                <li *ngFor="let ability of selectedPokemon.abilities">{{ ability }}</li>
+              </ul>
+            </div>
+            
+            <div class="detail-section">
+              <h3>Movimientos</h3>
+              <ul class="moves-list">
+                <li *ngFor="let move of selectedPokemon.moves">{{ move }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Modal para ver perfil del usuario -->
+<div class="modal" *ngIf="showProfileModal">
+  <div class="modal-content profile-modal">
+    <span class="close" (click)="closeModal()">&times;</span>
+    <h2>Mi Perfil</h2>
+    
+    <div class="profile-info" *ngIf="currentUser">
+      <div class="profile-avatar-container">
+        <img [src]="currentUser.avatar" alt="Avatar" class="profile-avatar">
+      </div>
+      
+      <div class="profile-details">
+        <div class="profile-field">
+          <label>Nombre:</label>
+          <span>{{ currentUser.name }}</span>
+        </div>
+        
+        <div class="profile-field">
+          <label>Email:</label>
+          <span>{{ currentUser.email }}</span>
+        </div>
+        
+        <div class="profile-field">
+          <label>ID de usuario:</label>
+          <span>{{ currentUser.id }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Tipos</th>
+        <th>Peso</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of displayed">
+        <td>{{ p.id }}</td>
+        <td><img [src]="p.image" alt="imagen" width="50" /></td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.types.join(', ') }}</td>
+        <td>{{ p.weight }} kg</td>
+        <td>
+          <button (click)="openEditModal(p)" title="Editar">
+            <i class="material-icons">edit</i>
+          </button>
+          <button (click)="delete(p)" title="Eliminar">
+            <i class="material-icons">delete</i>
+          </button>
+          <button (click)="openDetailModal(p)" title="Ver más">
+            <i class="material-icons">info</i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

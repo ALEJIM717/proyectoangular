@@ -1,0 +1,74 @@
+.logo-pokemon {
+  display: block;
+  margin: 0 auto 15px auto;
+  width: 100px;
+  height: auto;
+}
+
+/* Fondo degradado animado */
+.background {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #8cf0e8, #8cf0e8);
+  animation: gradientMove 10s ease infinite alternate;
+}
+
+/* Tarjeta tipo  */
+.glass-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 30px 25px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.856);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 1s ease-out;
+}
+
+/* Título elegante */
+.title {
+  text-align: center;
+  margin-bottom: 25px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Inputs */
+.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Botón */
+.btn-login {
+  width: 100%;
+  padding: 12px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientMove {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
